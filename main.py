@@ -6,9 +6,10 @@ import pandas as pd
 from wordcloud import WordCloud, STOPWORDS
 import matplotlib.pyplot as plt
 from selenium.webdriver.common.by import By
+
 ## Linkedin ID and PASSWORD
 email = "email@mail.com"
-password = "senhaficticia"
+password = "topsecret"
 
 ## Write here the job position and local for search
 position = "data analyst"
@@ -22,19 +23,24 @@ local = "brazil"
 position = position.replace(' ', "%20")
 driver_path = "chromedriver.exe"
 driver = webdriver.Chrome(executable_path=driver_path)
+
 #Maximizing browser window to avoid hidden elements
 driver.set_window_size(1024, 600)
 driver.maximize_window()## Opening linkedin website
 driver.get('https://www.linkedin.com/login')
+
 ## waiting load
 time.sleep(2)
 driver.find_element(By.ID,"username").send_keys(email)
 driver.find_element(By.ID,"password").send_keys(password)
 driver.find_element(By.ID,"password").send_keys(Keys.RETURN)
+
 # Opening jobs 
 driver.get(f"https://www.linkedin.com/jobs/search/?currentJobId=2662929045&geoId=106057199&keywords={position}&location={local}")
+
 # waiting 
 time.sleep(10)
+
 disc_list = []
 for i in range(1, 2):
     driver.find_element(By.XPATH, f"//button[@aria-label='Página {i}']").click()
@@ -57,29 +63,17 @@ for i in range(1, 2):
         # add text to list
         disc_list.append(soup.text)
         df = pd.DataFrame(disc_list)
-df = df.replace(['\n',
-                 '^.*?Expect', 
-                 '^.*?Qualifications', 
-                 '^.*?Required', 
-                 '^.*?expected', 
-                 '^.*?Responsibilities', 
-                 '^.*?Requisitos', 
-                 '^.*?Requirements', 
-                 '^.*?Qualificações', 
-                 '^.*?QualificationsRequired1', 
-                 '^.*?você deve ter:', 
-                 '^.*?experiência', 
-                 '^.*?você:', 
-                 '^.*?Desejável', 
-                 '^.*?great', 
-                 '^.*?Looking For', 
-                 '^.*?ll Need', 
-                 '^.*?Conhecimento', 
-                 '^.*?se:',
-                 '^.*?habilidades',                 
-                 '^.*?se:',
-                 '^.*?REQUISITOS'
-                 ], '', regex=True)
+        
+#cleaning words
+df = pd.DataFrame(disc_list)
+
+word_list = ['Expect', 'Qualifications', 'Required', 'expected', 'Responsibilities', 'Requisitos', 'Requirements', 'Qualificações', 'QualificationsRequired1', 'você deve ter:', 'experiência', 'você:', 
+             'Desejável', 'great', 'Looking For', 'll Need', 'Conhecimento', 'se:', 'habilidades', 'se:', 'REQUISITOS']
+# deleting useless words
+df = df.replace(f'\n', '', regex=True)
+for i in range (0, len(word_list)):
+    df = df.replace(f'^.*?{word_list[i]}', '', regex=True)
+
 ## setup wordcloud
 stopwords = set(STOPWORDS)
 ## selecting useless words 
