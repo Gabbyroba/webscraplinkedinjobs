@@ -1,3 +1,4 @@
+#Imports
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from bs4 import BeautifulSoup
@@ -38,15 +39,17 @@ driver.find_element(By.ID,"password").send_keys(Keys.RETURN)
 # Opening jobs 
 driver.get(f"https://www.linkedin.com/jobs/search/?currentJobId=2662929045&geoId=106057199&keywords={position}&location={local}")
 
-# waiting 
+#waiting 
 time.sleep(10)
 
 disc_list = []
-for i in range(1, 2):
+for i in range(1, 41):
     driver.find_element(By.XPATH, f"//button[@aria-label='Página {i}']").click()
     time.sleep(3)
     jobs_list = driver.find_element(By.CLASS_NAME, "scaffold-layout__list-container")
     jobs = jobs_list.find_elements(By.CLASS_NAME, 'scaffold-layout__list-item')
+    
+    #waiting to load page
     time.sleep(3)
     for job in range(1, len(jobs)+1):
         # job click
@@ -68,7 +71,7 @@ for i in range(1, 2):
 df = pd.DataFrame(disc_list)
 
 word_list = ['Expect', 'Qualifications', 'Required', 'expected', 'Responsibilities', 'Requisitos', 'Requirements', 'Qualificações', 'QualificationsRequired1', 'você deve ter:', 'experiência', 'você:', 
-             'Desejável', 'great', 'Looking For', 'll Need', 'Conhecimento', 'se:', 'habilidades', 'se:', 'REQUISITOS']
+             'Desejável', 'great', 'Looking For', 'll Need', 'Conhecimento', 'se:', 'habilidades', 'se:', 'REQUISITOS', 'diversidade', 'exclusiva']
 # deleting useless words
 df = df.replace(f'\n', '', regex=True)
 for i in range (0, len(word_list)):
@@ -93,7 +96,8 @@ badwords = {'gender', 'experience', 'application', 'Apply', 'salary', 'todos', '
           'está', 'comprometida', 'forma', 'Transporte', 'Yes', 'gente', 'melhor', 'lugar', 'believe', 'moment', 'próximo','deasafio',
           'dos', 'oportunidade', 'idade', 'new', 'Try', 'Premium', 'deficiência', 'sempre', 'criar', 'employee', 'problemas', 'unavailable',
           'Brasil', 'dado', 'hiring', 'trends', 'equipe', 'recent', 'temos', 'build', 'career', 'nós', 'diferencial', 'ma',
-           'total', 'oferecemos', 'contato', 'tem', 'não', 'free', 'Full','nossos','à','day','us','por'}
+          'total', 'oferecemos', 'contato', 'tem', 'não', 'free', 'Full','nossos','à','day','us','por','para','pra','diversity','auxílio','cliente',
+          'preferences','experiences','disability','well','best','inclusion'}
 
 ## deleting the useless words on plot
 stopwords.update(badwords)
@@ -111,9 +115,13 @@ plt.figure(figsize=(10,5))
 fig = plt.figure(1) 
 plt.imshow(wordcloud) 
 plt.axis('off') 
+plt.savefig('wordcloud-job.png', dpi=300)
 plt.show()
 
 
 ## exporting our dataframe to a csv file
 df.to_csv('wordcloud-job.csv', sep=';')
+
+
+
                       
